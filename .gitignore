@@ -1,0 +1,35 @@
+# Laravel & PHP
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+/storage/debugbar
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*.php
+
+# Environment & Config
+.env
+.env.*
+!.env.example
+Homestead.yaml
+Homestead.json
+auth.json
+
+# Compiled files
+/public/hot
+/public/build
+/public/mix-manifest.json
+
+# IDE & OS files
+.idea
+.vscode
+.phpunit.result.cache
+.phpunit.cache
+
+.phpactor.json
+Thumbs.db
+.DS_Store
+# Logs
+*.log
