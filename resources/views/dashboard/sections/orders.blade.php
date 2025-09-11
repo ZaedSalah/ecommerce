@@ -1,4 +1,4 @@
-@extends('layouts.dash')
+@extends('Layouts.dash')
 
 @section('title', 'الطلبات')
 
