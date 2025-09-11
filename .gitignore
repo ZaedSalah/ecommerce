@@ -19,7 +19,7 @@ auth.json
 
 # Compiled files
 /public/hot
-/public/build
+#/public/build
 /public/mix-manifest.json
 
 # IDE & OS files
