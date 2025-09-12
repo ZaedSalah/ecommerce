@@ -70,7 +70,7 @@ Route::delete('/categories/{id}', [ProductController::class, 'DestroyCategory'])
 
 // jquery datatable
 Route::get('/productsTable', [ProductController::class, 'ProductsTable']);
-Route::get('/single-product/{productid}', [ProductController::class, 'showProduct']);
+Route::get('/single-product/{productid}', [ProductController::class, 'showProduct'])->name('single.product');;
 
 
 Route::get('/AddProductImages/{productid}', [ProductController::class, 'AddProductImages']);
