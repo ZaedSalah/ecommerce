@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,9 +24,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // تأكد من ضبط اللغة عند الإقلاع
-        /*  if (Session::has('locale')) {
+        /*
+        if (Session::has('locale')) {
             App::setLocale(Session::get('locale'));
         }
-            */
+        */
+
+        // إجبار استخدام HTTPS في بيئة production
+        if (env('APP_ENV') === 'production') {
+            URL::forceScheme('https');
+        }
     }
 }
