@@ -112,7 +112,7 @@ Route::get('/addproducttocart/{productid}', function ($productid) {
 
     // الرجوع إلى صفحة السلة
     return redirect('/cart'); // الأفضل redirect بدل view
-})->middleware('auth');
+})->middleware('auth')->name('cart.add');
 
 // roule admin &  superadmin
 

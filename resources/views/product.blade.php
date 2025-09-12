@@ -28,8 +28,10 @@
                             </p>
                             <p dir="rtl">{{ $item->description }}</p>
 
-                            <a href="/addproducttocart/{{ $item->id }}" class="cart-btn my-3"><i
-                                    class="fas fa-shopping-cart"></i> اضافة الى السلة</a><br>
+                            <a href="{{ route('cart.add', $item->id) }}" class="cart-btn my-3">
+                                <i class="fas fa-shopping-cart"></i> اضافة الى السلة
+                            </a>
+                            <br>
 
                             @if (Auth::user() && (Auth::user()->role == 'admin' || Auth::user()->role == 'salesman'))
                                 <a href="/removeproduct/{{ $item->id }}" class="btn btn-danger"><i
