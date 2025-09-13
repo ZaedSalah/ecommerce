@@ -19,17 +19,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-
                                 @foreach ($cartProducts as $item)
                                     <tr class="table-body-row">
                                         <td class="product-remove">
-                                            <a href="/deletcartitem/{{ $item->id }}">
-                                                <i class="far fa-window-close">
-                                                </i>
-                                            </a>
+                                            <form action="{{ url('/cart/remove/' . $item->id) }}" method="POST"
+                                                style="display:inline;"
+                                                onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج من السلة؟');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    style="border:none; background:none; cursor:pointer;">
+                                                    <i class="far fa-window-close"></i>
+                                                </button>
+                                            </form>
                                         </td>
-                                        <td class="product-image"><img src="{{ asset($item->product->imagepath) }}"
-                                                alt="">
+                                        <td class="product-image">
+                                            <img src="{{ asset($item->product->imagepath) }}" alt="">
                                         </td>
                                         <td class="product-name">
                                             <a href="/single-product/{{ $item->product->id }}">
@@ -39,11 +44,13 @@
                                         <td class="product-price">{{ $item->product->price }}</td>
                                         <td class="product-quantity">{{ $item->quantity }}</td>
                                         <td class="product-total">
-                                            {{ $item->product->price * $item->quantity }}$</td>
+                                            {{ $item->product->price * $item->quantity }}$
+                                        </td>
                                     </tr>
                                 @endforeach
-
                             </tbody>
+
+
                         </table>
                     </div>
                 </div>

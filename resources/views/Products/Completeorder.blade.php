@@ -47,8 +47,8 @@
                             <div class="card single-accordion">
                                 <div class="card-header" id="headingThree">
                                     <h5 class="mb-0">
-                                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                            data-target="#collapseThree" aria-expanded="false"
+                                        <button class="btn btn-link collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseThree" aria-expanded="false"
                                             aria-controls="collapseThree">
                                             تفاصيل السلة
                                         </button>
