@@ -32,7 +32,7 @@
                                 <h5 class="card-title">{{ $item->name }}</h5>
                                 <p class="card-text text-muted">{{ $item->description }}</p>
 
-                                @if (Auth::check() && Auth::user()->role == 'admin')
+                                @if (Auth::check() && Auth::user()->role == 'superadmin')
                                     <div class="d-flex justify-content-center gap-2 mt-3">
                                         <!-- تعديل -->
                                         <a href="{{ route('categories.edit', $item->id) }}"
