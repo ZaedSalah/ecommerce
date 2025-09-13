@@ -46,7 +46,7 @@
                             <a href="cart.html" class="cart-btn mb-2"><i class="fas fa-shopping-cart"></i> اضافة الى
                                 السلة</a><br>
 
-                            @if (Auth::user() && Auth::user()->role == 'admin')
+                            @if (Auth::user() && Auth::user()->role == 'superadmin')
                                 <a href="/removeproduct/{{ $item->id }}" class="btn btn-danger"><i
                                         class="fas fa-trash"></i> حذف المنتج </a>
                                 <a href="/editproduct/{{ $item->id }}" class="btn btn-primary"><i

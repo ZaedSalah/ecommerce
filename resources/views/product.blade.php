@@ -33,7 +33,7 @@
                             </a>
                             <br>
 
-                            @if (Auth::user() && (Auth::user()->role == 'admin' || Auth::user()->role == 'salesman'))
+                            @if (Auth::user() && (Auth::user()->role == 'admin' || Auth::user()->role == 'superadmin'))
                                 <a href="{{ route('products.remove', $item->id) }}" class="btn btn-danger">
                                     <i class="fas fa-trash"></i> حذف المنتج
                                 </a>
