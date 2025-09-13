@@ -40,7 +40,7 @@
                                             <i class="fas fa-edit"></i> تعديل
                                         </a>
 
-                                        <!-- حذف -->
+                                        <!-- حذف التصنيف -->
                                         <form action="{{ route('categories.destroy', $item->id) }}" method="POST"
                                             onsubmit="return confirm('هل أنت متأكد من الحذف؟');">
                                             @csrf

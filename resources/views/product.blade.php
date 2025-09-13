@@ -34,9 +34,15 @@
                             <br>
 
                             @if (Auth::user() && (Auth::user()->role == 'admin' || Auth::user()->role == 'superadmin'))
-                                <a href="{{ route('products.remove', $item->id) }}" class="btn btn-danger">
-                                    <i class="fas fa-trash"></i> حذف المنتج
-                                </a>
+                                <!-- حذف المنتج -->
+                                <form action="{{ route('products.remove', $item->id) }}" method="POST"
+                                    onsubmit="return confirm('هل أنت متأكد من الحذف؟');" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i> حذف المنتج
+                                    </button>
+                                </form>
                                 <a href="{{ route('products.edit', $item->id) }}" class="btn btn-primary">
                                     <i class="fas fa-edit"></i> تعديل المنتج
                                 </a>

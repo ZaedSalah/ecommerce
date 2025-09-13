@@ -23,8 +23,7 @@
                                     <tr class="table-body-row">
                                         <td class="product-remove">
                                             <form action="{{ url('/cart/remove/' . $item->id) }}" method="POST"
-                                                style="display:inline;"
-                                                onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج من السلة؟');">
+                                                style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
@@ -49,7 +48,6 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-
 
                         </table>
                     </div>
