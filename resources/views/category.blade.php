@@ -35,14 +35,14 @@
                     <div class="col-lg-4 col-md-6 text-center _{{ $item->category_id }}">
                         <div class="single-product-item">
                             <div class="product-image">
-                                <a href="single-product.html">
+                                <a href="{{ route('single.product', $item->id) }}">
                                     <img src="{{ asset($item->imagepath) }}" style="max-height: 250px; min-height:250px"
                                         alt="">
                                 </a>
                             </div>
                             <h3>{{ $item->name }}</h3>
-                            <p class="product-price"><span>Price: </span> {{ $item->price }}$ </p>
-                            <p class="product-price"><span>Quantity: </span> {{ $item->quantity }} </p>
+                            <p class="product-price"><span>السعر: </span> {{ $item->price }}$ </p>
+                            <p class="product-price"><span>الكمية: </span> {{ $item->quantity }} </p>
                             <a href="cart.html" class="cart-btn mb-2"><i class="fas fa-shopping-cart"></i> اضافة الى
                                 السلة</a><br>
                         </div>
