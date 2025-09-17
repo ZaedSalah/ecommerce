@@ -43,8 +43,14 @@
                             <h3>{{ $item->name }}</h3>
                             <p class="product-price"><span>السعر: </span> {{ $item->price }}$ </p>
                             <p class="product-price"><span>الكمية: </span> {{ $item->quantity }} </p>
-                            <a href="cart.html" class="cart-btn mb-2"><i class="fas fa-shopping-cart"></i> اضافة الى
-                                السلة</a><br>
+                            @if ($item->quantity > 0)
+                                <a href="{{ route('cart.add', $item->id) }}" class="cart-btn my-3">
+                                    <i class="fas fa-shopping-cart"></i> اضافة الى السلة
+                                </a>
+                            @else
+                                <button class="btn btn-secondary my-3" disabled>نفذ المخزون</button>
+                            @endif
+                            <br>
                         </div>
                     </div>
                 @endforeach

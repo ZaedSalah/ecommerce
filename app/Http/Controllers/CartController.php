@@ -14,7 +14,12 @@ class CartController extends Controller
     public function cart()
     {
         $user_id = Auth::user()->id;
-        $cartProducts = Cart::with('product')->where('user_id', $user_id)->get();
+        $cartProducts = Cart::with('product')
+            ->where('user_id', $user_id)
+            ->get()
+            ->filter(function ($item) {
+                return $item->product->quantity > 0; // فقط المنتجات المتوفرة
+            });
 
         return view('Products.cart', ['cartProducts' => $cartProducts]);
     }
@@ -43,37 +48,33 @@ class CartController extends Controller
             'note' => 'nullable|string',
         ]);
 
-        $user_id = Auth::user()->id;
+        $user_id = Auth::id();
 
-        // إنشاء الطلب
         $newOrder = Order::create([
-            'name'    => $validatedData['name'],
-            'email'   => $validatedData['email'],
-            'phone'   => $validatedData['phone'],
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'phone' => $validatedData['phone'],
             'address' => $validatedData['address'],
-            'note'    => $validatedData['note'],
+            'note' => $validatedData['note'],
             'user_id' => $user_id,
         ]);
 
-        // جلب المنتجات من السلة
         $cartProducts = Cart::with('product')->where('user_id', $user_id)->get();
 
         foreach ($cartProducts as $item) {
-            // تخزين تفاصيل الطلب
             Orderdetails::create([
-                'order_id'   => $newOrder->id,
+                'order_id' => $newOrder->id,
                 'product_id' => $item->product_id,
-                'price'      => $item->product->price,
-                'quantity'   => $item->quantity,
+                'price' => $item->product->price,
+                'quantity' => $item->quantity,
             ]);
 
-            // تحديث كمية المنتج (إنقاص المخزون)
+            // تحديث كمية المنتج
             $product = $item->product;
             if ($product->quantity >= $item->quantity) {
                 $product->quantity -= $item->quantity;
                 $product->save();
             } else {
-                // حالة إذا ماكو كافي مخزون
                 return redirect()->back()->with('error', "المنتج {$product->name} غير متوفر بالكمية المطلوبة");
             }
         }
@@ -81,18 +82,21 @@ class CartController extends Controller
         // تفريغ السلة
         Cart::where('user_id', $user_id)->delete();
 
+        // إعادة التوجيه للواجهة الرئيسية مع رسالة نجاح
         return redirect('/')->with('success', 'تم ارسال الطلب بنجاح');
     }
+
     public function deleteItem($id)
     {
         $item = Cart::find($id);
 
         if (!$item) {
-            return response()->json(['message' => 'Item not found'], 404);
+            return redirect()->back()->with('error', 'العنصر غير موجود');
         }
 
         $item->delete();
-        return response()->json(['message' => 'Item removed successfully']);
+
+        return redirect()->back()->with('success', 'تم حذف العنصر بنجاح');
     }
     public function updateQuantity(Request $request, $id)
     {
@@ -103,15 +107,12 @@ class CartController extends Controller
         $cartItem = Cart::find($id);
 
         if (!$cartItem) {
-            return response()->json(['message' => 'Item not found'], 404);
+            return redirect()->back()->with('error', 'العنصر غير موجود');
         }
 
         $cartItem->quantity = $request->quantity;
         $cartItem->save();
 
-        return response()->json([
-            'message' => 'Quantity updated successfully',
-            'cartItem' => $cartItem
-        ]);
+        return redirect()->back()->with('success', 'تم تعديل الكمية بنجاح');
     }
 }

@@ -238,13 +238,25 @@
 
                 $.ajax({
                     url: url,
-                    method: 'PATCH',
+                    method: 'POST', // لازم POST
                     data: {
                         _token: '{{ csrf_token() }}',
+                        _method: 'PATCH', // Laravel يتعرف عليها كـ PATCH
                         status: status
                     },
+
                     success: function(res) {
                         console.log(res.message);
+
+                        // تحديث الكروت مباشرة
+                        if (res.salesTotal !== undefined) {
+                            $('.counter.text-danger').text(res.salesTotal);
+                        }
+                        if (res.totalProfit !== undefined) {
+                            $('.counter.text-warning').text(res.totalProfit);
+                        }
+
+                        // تحديث الرسم البياني
                         if (res.chartLabels && res.chartData) {
                             salesChart.data.labels = res.chartLabels;
                             salesChart.data.datasets[0].data = res.chartData;
@@ -257,6 +269,7 @@
                     }
                 });
             });
+
 
             // الفلترة العامة
             function filterAllTables() {

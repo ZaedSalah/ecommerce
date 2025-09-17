@@ -82,7 +82,7 @@ Route::get('/cart', [CartController::class, 'cart'])->middleware('auth');
 // Order
 Route::get('/Completeorder', [CartController::class, 'Completeorder'])->middleware('auth');
 Route::get('/previousorder', [CartController::class, 'previousorder'])->middleware('auth');
-Route::post('/StoreOrder', [CartController::class, 'StoreOrder']);
+Route::post('/StoreOrder', [CartController::class, 'StoreOrder'])->name('store.order');
 
 
 // حذف منتج من السلة

@@ -232,7 +232,7 @@ class ProductController extends Controller
     public function index($section = 'home', $id = null)
     {
         // =========================
-        // حسابات مشتركة (تُمرَّر لكل الأقسام) — يمنع Undefined variable
+        // حسابات مشتركة (تُمرَّر لكل الأقسام)
         // =========================
         $ordersCount   = Order::count();
         $usersCount    = User::count();
@@ -241,7 +241,7 @@ class ProductController extends Controller
         // حساب إجمالي المبيعات من orderdetails مباشرة (فقط الطلبات المكتملة)
         $salesTotal = DB::table('orderdetails')
             ->join('orders', 'orderdetails.order_id', '=', 'orders.id')
-            ->where('orders.status', 'completed')
+            ->where('orders.status', 'مكتمل')
             ->selectRaw('SUM(orderdetails.quantity * orderdetails.price) as total_sales')
             ->value('total_sales') ?? 0;
 
@@ -249,13 +249,18 @@ class ProductController extends Controller
         $totalProfit = DB::table('orderdetails')
             ->join('products', 'orderdetails.product_id', '=', 'products.id')
             ->join('orders', 'orderdetails.order_id', '=', 'orders.id')
-            ->where('orders.status', 'completed')
+            ->where('orders.status', 'مكتمل')
             ->selectRaw('SUM((orderdetails.price - products.purchase_price) * orderdetails.quantity) as profit')
             ->value('profit') ?? 0;
 
-
-        // الآن common array جاهز
         $common = compact('ordersCount', 'usersCount', 'productsCount', 'salesTotal', 'totalProfit');
+
+        $userFilter    = request()->input('user', '');
+        $productFilter = request()->input('product', '');
+        $search        = request()->input('search', '');
+        $dateFilter    = request()->input('date', '');
+        $filter        = request()->input('filter', 'daily');
+
 
         switch ($section) {
 
@@ -264,11 +269,7 @@ class ProductController extends Controller
             default:
                 $currentYear = now()->year;
 
-                // فلترة GET
-                $userFilter    = request()->input('user', '');
-                $productFilter = request()->input('product', '');
-                $search        = request()->input('search', '');
-                $dateFilter    = request()->input('date', '');
+
 
                 // =========================
                 // جدول المستخدمين
@@ -312,19 +313,34 @@ class ProductController extends Controller
                 // =========================
                 // بيانات الرسم البياني (آخر 30 يومًا) + ألوان حسب المبيعات
                 // =========================
+
+                $dates = collect();
+                for ($i = 29; $i >= 0; $i--) {
+                    $dates->push(Carbon::today()->subDays($i)->format('Y-m-d'));
+                }
+
+                $ordersByDay = DB::table('orders')
+                    ->join('orderdetails', 'orders.id', '=', 'orderdetails.order_id')
+                    ->where('orders.status', 'مكتمل')
+                    ->whereDate('orders.created_at', '>=', Carbon::today()->subDays(29))
+                    ->select(
+                        DB::raw('DATE(orders.created_at) as date'),
+                        DB::raw('SUM(orderdetails.quantity * orderdetails.price) as total_sales')
+                    )
+                    ->groupBy('date')
+                    ->orderBy('date')
+                    ->get()
+                    ->keyBy('date');
+
                 $chartLabels = [];
                 $chartData   = [];
                 $chartColors = [];
 
-                for ($i = 29; $i >= 0; $i--) {
-                    $date = now()->subDays($i)->startOfDay();
-                    $chartLabels[] = $date->format('d-m');
-
-                    // حساب إجمالي المبيعات لليوم الحالي
-                    $dailySales = Order::whereDate('created_at', $date)->sum('total_price');
+                foreach ($dates as $date) {
+                    $chartLabels[] = Carbon::parse($date)->format('d-m');
+                    $dailySales = $ordersByDay->has($date) ? $ordersByDay[$date]->total_sales : 0;
                     $chartData[] = $dailySales;
 
-                    // تحديد اللون حسب قيمة المبيعات
                     if ($dailySales == 0) {
                         $chartColors[] = 'rgba(255, 99, 132, 0.5)'; // أحمر فاتح
                     } elseif ($dailySales < 100) {
@@ -338,7 +354,6 @@ class ProductController extends Controller
                     $common,
                     compact('section', 'users', 'allProducts', 'chartLabels', 'chartData', 'chartColors')
                 ));
-
 
                 // ===== جدول الطلبات =====
             case 'orders':
@@ -387,46 +402,39 @@ class ProductController extends Controller
                 $allProducts = Product::orderBy('name')->get();
                 $allUsers = User::orderBy('name')->get();
 
-                // Top products (فقط مكتملة)
                 $topProducts = DB::table('orderdetails')
                     ->join('products', 'orderdetails.product_id', '=', 'products.id')
                     ->join('orders', 'orderdetails.order_id', '=', 'orders.id')
-                    ->where('orders.status', 'completed')
+                    ->where('orders.status', 'مكتمل')
                     ->select(
                         'products.name',
                         DB::raw('SUM(orderdetails.quantity) as total_quantity'),
                         DB::raw('SUM(orderdetails.quantity * orderdetails.price) as total_revenue')
                     )
-                    ->when($productFilter !== 'all', function ($q) use ($productFilter) {
-                        $q->where('products.id', $productFilter);
-                    })
+                    ->when($productFilter !== 'all', fn($q) => $q->where('products.id', $productFilter))
                     ->groupBy('products.name')
                     ->orderByDesc('total_quantity')
                     ->limit(5)
                     ->get();
 
-                // Top users (فقط مكتملة)
                 $topUsers = DB::table('orders')
                     ->join('users', 'orders.user_id', '=', 'users.id')
-                    ->where('orders.status', 'completed')
+                    ->where('orders.status', 'مكتمل')
                     ->select(
                         'users.name',
                         DB::raw('COUNT(orders.id) as total_orders'),
                         DB::raw('SUM(orders.total_price) as total_spent')
                     )
-                    ->when($userFilter !== 'all', function ($q) use ($userFilter) {
-                        $q->where('users.id', $userFilter);
-                    })
+                    ->when($userFilter !== 'all', fn($q) => $q->where('users.id', $userFilter))
                     ->groupBy('users.name')
                     ->orderByDesc('total_spent')
                     ->limit(5)
                     ->get();
 
-                // Sales (فقط مكتملة)
                 $sales = DB::table('orders')
                     ->join('orderdetails', 'orders.id', '=', 'orderdetails.order_id')
                     ->join('products', 'orderdetails.product_id', '=', 'products.id')
-                    ->where('orders.status', 'completed')
+                    ->where('orders.status', 'مكتمل')
                     ->select(
                         DB::raw(match ($filter) {
                             'daily'   => 'DATE(orders.created_at)',
@@ -441,6 +449,7 @@ class ProductController extends Controller
                     ->when($userFilter !== 'all', function ($q) use ($userFilter) {
                         $q->where('orders.user_id', $userFilter);
                     })
+
                     ->groupBy('period')
                     ->orderBy('period')
                     ->get();
@@ -632,26 +641,44 @@ class ProductController extends Controller
         $order->status = $request->status;
         $order->save();
 
-        // إعادة بيانات للرسم البياني إذا أردنا
-        $currentYear = now()->year;
-        $salesPerMonthRaw = Order::selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
-            ->whereYear('created_at', $currentYear)
-            ->groupBy('month')
-            ->pluck('total', 'month')
-            ->toArray();
+        // إعادة حساب إجمالي المبيعات والأرباح للكروت (فقط الطلبات المكتملة)
+        $salesTotal = DB::table('orderdetails')
+            ->join('orders', 'orderdetails.order_id', '=', 'orders.id')
+            ->where('orders.status', 'مكتمل')
+            ->selectRaw('SUM(orderdetails.quantity * orderdetails.price) as total_sales')
+            ->value('total_sales') ?? 0;
 
-        $months = [];
-        $salesPerMonth = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $months[] = date('F', mktime(0, 0, 0, $i, 1));
-            $salesPerMonth[] = $salesPerMonthRaw[$i] ?? 0;
+        $totalProfit = DB::table('orderdetails')
+            ->join('orders', 'orderdetails.order_id', '=', 'orders.id')
+            ->join('products', 'orderdetails.product_id', '=', 'products.id')
+            ->where('orders.status', 'مكتمل')
+            ->selectRaw('SUM((orderdetails.price - products.purchase_price) * orderdetails.quantity) as profit')
+            ->value('profit') ?? 0;
+
+        // إعداد بيانات الرسم البياني لآخر 30 يوم (طلبات مكتملة)
+        $chartLabels = [];
+        $chartData   = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i)->startOfDay();
+            $chartLabels[] = $date->format('d-m');
+
+            $dailySales = DB::table('orders')
+                ->join('orderdetails', 'orders.id', '=', 'orderdetails.order_id')
+                ->whereDate('orders.created_at', $date)
+                ->where('orders.status', 'مكتمل')
+                ->sum(DB::raw('orderdetails.quantity * orderdetails.price'));
+
+
+            $chartData[] = $dailySales;
         }
 
         return response()->json([
             'message' => 'تم تحديث حالة الطلب بنجاح',
             'status' => $order->status,
-            'chartLabels' => $months,
-            'chartData' => $salesPerMonth
+            'salesTotal' => $salesTotal,
+            'totalProfit' => $totalProfit,
+            'chartLabels' => $chartLabels,
+            'chartData' => $chartData
         ]);
     }
 }

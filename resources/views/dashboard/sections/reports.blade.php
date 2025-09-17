@@ -195,7 +195,7 @@
                             count = target;
                             clearInterval(interval);
                         }
-                        el.textContent = Math.floor(count);
+                        el.textContent = Math.floor(count).toLocaleString();
                     }, 15);
                     observer.unobserve(el);
                 }

@@ -7,6 +7,18 @@
             <div class="row">
                 <div class="col-lg-8 col-md-12">
                     <div class="cart-table-wrap">
+                        @if (session('success'))
+                            <div class="alert alert-success mb-3">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger mb-3">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+
                         <table class="cart-table">
                             <thead class="cart-table-head">
                                 <tr class="table-head-row">

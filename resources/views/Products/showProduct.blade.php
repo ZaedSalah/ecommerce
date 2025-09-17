@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-md-5">
                     <div class="single-product-img">
-                        <img src="{{ asset($product->imagepath) }}" alt="">
+                        <img src="{{ asset($product->imagepath) }}" alt="صورة المنتج">
                     </div>
                 </div>
                 <div class="col-md-7">
@@ -39,7 +39,7 @@
                             <div class="single-testimonial-slider p-4 rounded shadow-sm ">
                                 <div class="client-avater mb-3">
                                     <img src="{{ asset($item->imagepath) }}" alt=""
-                                        style="width: 200px;max-width: none; height: 200px !important;border: 5px; border-radius: 20px 100px">
+                                        style="width: 200px;max-width: none; height: 150px !important;border: 5px; border-radius: 20px 100px">
                                 </div>
                                 <div class="client-meta">
                                     <div class="last-icon mt-3">

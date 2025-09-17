@@ -28,9 +28,14 @@
                             </p>
                             <p dir="rtl">{{ $item->description }}</p>
 
-                            <a href="{{ route('cart.add', $item->id) }}" class="cart-btn my-3">
-                                <i class="fas fa-shopping-cart"></i> اضافة الى السلة
-                            </a>
+                            @if ($item->quantity > 0)
+                                <a href="{{ route('cart.add', $item->id) }}" class="cart-btn my-3">
+                                    <i class="fas fa-shopping-cart"></i> اضافة الى السلة
+                                </a>
+                            @else
+                                <button class="btn btn-secondary my-3" disabled>نفذ المخزون</button>
+                            @endif
+
                             <br>
 
                             @if (Auth::user() && (Auth::user()->role == 'admin' || Auth::user()->role == 'superadmin'))

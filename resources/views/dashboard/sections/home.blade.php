@@ -40,7 +40,8 @@
                             <option value="">كل المستخدمين</option>
                             @foreach ($users as $userOption)
                                 <option value="{{ $userOption->name }}"
-                                    {{ request('user') == $userOption->name ? 'selected' : '' }}>{{ $userOption->name }}
+                                    {{ request('user') == $userOption->name ? 'selected' : '' }}>
+                                    {{ $userOption->name }}
                                 </option>
                             @endforeach
                         </select>

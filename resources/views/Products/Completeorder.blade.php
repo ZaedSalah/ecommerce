@@ -8,6 +8,7 @@
                 <div class="col-lg-12">
                     <div class="checkout-accordion-wrap">
                         <div class="accordion" id="accordionExample">
+                            <!-- معلومات المشتري -->
                             <div class="card single-accordion">
                                 <div class="card-header" id="headingOne">
                                     <h5 class="mb-0">
@@ -22,21 +23,16 @@
                                     data-parent="#accordionExample">
                                     <div class="card-body">
                                         <div class="billing-address-form">
-                                            <form action="/StoreOrder" method="POST" id="store-order" name="store-order">
+                                            <form action="{{ route('store.order') }}" method="POST" id="store-order">
                                                 @csrf
-                                                <p><input required type="text" id="name" name="name"
-                                                        placeholder="اسمك">
-                                                </p>
-                                                <p><input required type="email" id="email" name="email"
-                                                        placeholder="البريد الالكتروني">
-                                                </p>
-                                                <p><input required type="text" id="address" name="address"
-                                                        placeholder="العنوان"></p>
-                                                <p><input required type="tel" id="phone" name="phone"
-                                                        placeholder="رقم الهاتف">
+                                                <p><input required type="text" name="name" placeholder="اسمك"></p>
+                                                <p><input required type="email" name="email"
+                                                        placeholder="البريد الالكتروني"></p>
+                                                <p><input required type="text" name="address" placeholder="العنوان"></p>
+                                                <p><input required type="tel" name="phone" placeholder="رقم الهاتف">
                                                 </p>
                                                 <p>
-                                                    <textarea name="note" id="note" cols="30" rows="10" placeholder="ملاحظات ..."></textarea>
+                                                    <textarea name="note" cols="30" rows="5" placeholder="ملاحظات ..."></textarea>
                                                 </p>
                                             </form>
                                         </div>
@@ -44,6 +40,7 @@
                                 </div>
                             </div>
 
+                            <!-- تفاصيل السلة -->
                             <div class="card single-accordion">
                                 <div class="card-header" id="headingThree">
                                     <h5 class="mb-0">
@@ -58,7 +55,6 @@
                                     data-parent="#accordionExample">
                                     <div class="card-body">
                                         <div class="card-details">
-                                            <!-- cart -->
                                             <div class="cart-section mt-150 mb-150">
                                                 <div class="container">
                                                     <div class="row">
@@ -76,18 +72,16 @@
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-
                                                                         @foreach ($cartProducts as $item)
                                                                             <tr class="table-body-row">
                                                                                 <td class="product-remove">
                                                                                     <a
                                                                                         href="/deletcartitem/{{ $item->id }}">
-                                                                                        <i class="far fa-window-close">
-                                                                                        </i>
+                                                                                        <i class="far fa-window-close"></i>
                                                                                     </a>
                                                                                 </td>
-                                                                                <td class="product-image"><img
-                                                                                        src="{{ asset($item->product->imagepath) }}"
+                                                                                <td class="product-image">
+                                                                                    <img src="{{ asset($item->product->imagepath) }}"
                                                                                         alt="">
                                                                                 </td>
                                                                                 <td class="product-name">
@@ -105,7 +99,6 @@
                                                                                 </td>
                                                                             </tr>
                                                                         @endforeach
-
                                                                     </tbody>
                                                                 </table>
                                                             </div>
@@ -124,20 +117,14 @@
                                                                         <tr class="total-data">
                                                                             <td><strong>السعر الاجمالي: </strong></td>
                                                                             <td>
-
-                                                                                {{ $cartProducts->sum(function ($item) {
-                                                                                    return $item->product->price * $item->quantity;
-                                                                                }) }}
-                                                                                $
+                                                                                {{ $cartProducts->sum(fn($item) => $item->product->price * $item->quantity) }}$
                                                                             </td>
                                                                         </tr>
                                                                     </tbody>
                                                                 </table>
-
                                                             </div>
-
-
                                                         </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -146,18 +133,16 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-12 mt-5">
-                    <a href="#"
-                        onclick="
-                        event.preventDefault();
-                        document.getElementById('store-order').submit();"
-                        class="boxed-btn black">ادفع الان
-                    </a>
 
+                <!-- زر الدفع -->
+                <div class="col-lg-12 mt-5">
+                    <button type="submit" form="store-order" class="boxed-btn black">
+                        ادفع الان
+                    </button>
                 </div>
             </div>
         </div>
