@@ -198,7 +198,7 @@ class ProductController extends Controller
         // تحقق من وجود منتجات مرتبطة بالفئة
         $productsCount = $category->products()->count();
         if ($productsCount > 0) {
-            return redirect()->back()->with('error', "لا يمكن حذف الفئة، لأنها تحتوي على {$productsCount} منتجات");
+            return redirect()->back()->with('error', "لا يمكن حذف الفئة، لأنها تحتوي على {$productsCount} من المنتجات");
         }
 
         $category->delete();
