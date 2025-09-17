@@ -238,16 +238,21 @@ class ProductController extends Controller
         $usersCount    = User::count();
         $productsCount = Product::count();
 
-        // حساب إجمالي المبيعات من orderdetails مباشرة
+        // حساب إجمالي المبيعات من orderdetails مباشرة (فقط الطلبات المكتملة)
         $salesTotal = DB::table('orderdetails')
-            ->selectRaw('SUM(quantity * price) as total_sales')
+            ->join('orders', 'orderdetails.order_id', '=', 'orders.id')
+            ->where('orders.status', 'completed')
+            ->selectRaw('SUM(orderdetails.quantity * orderdetails.price) as total_sales')
             ->value('total_sales') ?? 0;
 
-        // حساب الأرباح (مبيعات - تكلفة شراء)
+        // حساب الأرباح (مبيعات - تكلفة شراء) فقط للطلبات المكتملة
         $totalProfit = DB::table('orderdetails')
             ->join('products', 'orderdetails.product_id', '=', 'products.id')
+            ->join('orders', 'orderdetails.order_id', '=', 'orders.id')
+            ->where('orders.status', 'completed')
             ->selectRaw('SUM((orderdetails.price - products.purchase_price) * orderdetails.quantity) as profit')
             ->value('profit') ?? 0;
+
 
         // الآن common array جاهز
         $common = compact('ordersCount', 'usersCount', 'productsCount', 'salesTotal', 'totalProfit');
@@ -382,9 +387,11 @@ class ProductController extends Controller
                 $allProducts = Product::orderBy('name')->get();
                 $allUsers = User::orderBy('name')->get();
 
-                // Top products
+                // Top products (فقط مكتملة)
                 $topProducts = DB::table('orderdetails')
                     ->join('products', 'orderdetails.product_id', '=', 'products.id')
+                    ->join('orders', 'orderdetails.order_id', '=', 'orders.id')
+                    ->where('orders.status', 'completed')
                     ->select(
                         'products.name',
                         DB::raw('SUM(orderdetails.quantity) as total_quantity'),
@@ -398,9 +405,10 @@ class ProductController extends Controller
                     ->limit(5)
                     ->get();
 
-                // Top users
+                // Top users (فقط مكتملة)
                 $topUsers = DB::table('orders')
                     ->join('users', 'orders.user_id', '=', 'users.id')
+                    ->where('orders.status', 'completed')
                     ->select(
                         'users.name',
                         DB::raw('COUNT(orders.id) as total_orders'),
@@ -414,10 +422,11 @@ class ProductController extends Controller
                     ->limit(5)
                     ->get();
 
-                // Sales
+                // Sales (فقط مكتملة)
                 $sales = DB::table('orders')
                     ->join('orderdetails', 'orders.id', '=', 'orderdetails.order_id')
                     ->join('products', 'orderdetails.product_id', '=', 'products.id')
+                    ->where('orders.status', 'completed')
                     ->select(
                         DB::raw(match ($filter) {
                             'daily'   => 'DATE(orders.created_at)',
@@ -442,7 +451,6 @@ class ProductController extends Controller
                 ));
         }
     }
-
 
     public function updateUserRole(Request $request, $id)
     {
